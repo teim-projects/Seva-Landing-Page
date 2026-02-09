@@ -336,20 +336,16 @@
   </div>
 </section>
 
-<!-- javascript -->
-
 <script>
-document.getElementById("contactForm").addEventListener("submit", async function(e) {
+document.getElementById("contactForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const form = this;
   const btn = form.querySelector("button");
 
-  // Button loading state
   btn.disabled = true;
   btn.innerText = "Submitting...";
 
-  // Collect all values (matches your exact IDs)
   const data = {
     name: document.getElementById("name").value.trim(),
     contact: document.getElementById("contact").value.trim(),
@@ -360,36 +356,38 @@ document.getElementById("contactForm").addEventListener("submit", async function
     issue: document.getElementById("issue").value.trim()
   };
 
-  console.log("Sending data:", data); // for testing
+  const API_URL =
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "localhost"
+      ? "http://127.0.0.1:8000/api/enquiry/"
+      : "https://www.teimcrm.com/api/enquiry/";
 
   try {
-    const response = await fetch("https://your-crm-domain.com/api/enquiry/", { // 👈 PUT REAL API HERE
+    const response = await fetch(API_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
 
-    if (!response.ok) {
-      throw new Error("Server error");
-    }
-
     const result = await response.json();
 
-    alert("Thank you! Your enquiry has been submitted.");
+    if (!response.ok || !result.status) {
+      throw new Error(result.message || "Submission failed");
+    }
+
+    alert("Thank you! Your enquiry has been submitted successfully.");
     form.reset();
 
   } catch (error) {
-    console.error(error);
-    alert("Submission failed. Please try again.");
+    console.error("Submission error:", error);
+    alert(error.message || "Please try again later");
   } finally {
     btn.disabled = false;
     btn.innerText = "Submit";
   }
 });
-
 </script>
+
 
 
 <!-- <script src="https://smtpjs.com/v3/smtp.js"></script>
